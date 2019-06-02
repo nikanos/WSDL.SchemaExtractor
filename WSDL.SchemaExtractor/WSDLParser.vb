@@ -19,7 +19,7 @@ Public Class WSDLParser
 
         Dim wsdlDocument As XDocument = XDocument.Parse(wsdlData)
 
-        'Assume that wsslData is a multiple part document if there are schemaLocation attributes in an xs:import element
+        'Assume that wsdlData is a multiple part document if there are schemaLocation attributes in an xs:import element
         Dim isMultiplePartDocument As Boolean = wsdlDocument...<xs:import>.Any(Function(x) x.@schemaLocation IsNot Nothing)
         If isMultiplePartDocument Then
             Throw New WSDLParseException($"WSDL data does not seem to be a single-WSDL document")
