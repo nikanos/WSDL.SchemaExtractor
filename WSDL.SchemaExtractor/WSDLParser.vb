@@ -1,7 +1,4 @@
-﻿Imports System.Xml
-Imports System.Xml.Linq
-
-Imports <xmlns:xs="http://www.w3.org/2001/XMLSchema">
+﻿Imports <xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
 Public Class WSDLParser
 
@@ -19,7 +16,7 @@ Public Class WSDLParser
 
         Dim wsdlDocument As XDocument = XDocument.Parse(wsdlData)
 
-        'Assume that wsdlData is a multiple part document if there are schemaLocation attributes in an xs:import element
+        'Assume that wsdlData is a multi-part document if there are schemaLocation attributes in an xs:import element
         Dim isMultiplePartDocument As Boolean = wsdlDocument...<xs:import>.Any(Function(x) x.@schemaLocation IsNot Nothing)
         If isMultiplePartDocument Then
             Throw New WSDLParseException($"WSDL data does not seem to be a single-WSDL document")
@@ -28,13 +25,13 @@ Public Class WSDLParser
         Dim schemas = From schema In wsdlDocument...<xs:schema>
                       Select schema
 
-        For Each sch In schemas
-            Dim targetNamespace As String = sch.@targetNamespace
+        For Each schema In schemas
+            Dim targetNamespace As String = schema.@targetNamespace
             If Not schemaMapping.ContainsKey(targetNamespace) Then
                 Throw New WSDLParseException($"Unmapped schema targetnamespace {targetNamespace} in configuration")
             End If
 
-            Dim schemaImports = From import In sch...<xs:import>
+            Dim schemaImports = From import In schema...<xs:import>
                                 Select import
 
             For Each schemaImport In schemaImports
@@ -49,7 +46,7 @@ Public Class WSDLParser
 
             Yield New ParsedSchema With {
                 .SchemaFileName = schemaMapping(targetNamespace),
-                .SchemaData = sch
+                .SchemaData = schema
             }
         Next
     End Function
